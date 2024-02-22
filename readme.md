@@ -49,6 +49,19 @@ Once you have successfully built the program, you can create an executable for *
     chmod +x /path/to/destination/
     ```
 
+## Run executable
+
+Upon initial execution, the script will prompt you to input your login credentials, the IP address and the log location, which will then be used to generate a configuration file.
+
+To update the information, modify the config file with the following format:
+
+    Username: john.doe@example.com
+    Password: Tr0ub4dor&3
+    IP address: 192.168.1.1
+    Log location: usr/local/bin/sensor_logs
+
+The script will create multiple CSV files.
+
 ## Disclaimer
 
 USE THIS PROGRAM AT YOUR OWN RISK. The authors and contributors of this program make no guarantees or warranties, and assume no liability for any consequences resulting from the use of this software. Be cautious when using this program, especially in production environments, and ensure that you have appropriate backups and safeguards in place.

@@ -2,7 +2,7 @@
 pub async fn request_room(
     /* Send POST request bundled per room */
     client: &reqwest::Client,
-    room: crate::logging::Room,
+    room: &crate::logging::Room,
     start_time: &str,
     end_time: &str,
     url: &str,
@@ -24,7 +24,6 @@ pub async fn request_room(
         .text()
         .await?)
 }
-
 
 pub async fn request_sensor(
     /* Send POST for a single sensor */
