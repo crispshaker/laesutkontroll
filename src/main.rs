@@ -5,8 +5,13 @@ mod post;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let login_data: login::LoginData =
-        login::read_login_data("config_laesutkontroll.txt").expect("Failed to get login data.");
+    let current_exe: std::path::PathBuf = std::env::current_exe()?;
+    let login_data: login::LoginData = login::read_login_data(&format!(
+        "{}/config_{}.txt",
+        current_exe.parent().unwrap().to_str().unwrap(),
+        current_exe.file_name().unwrap().to_str().unwrap()
+    ))
+    .expect("Failed to get login data.");
     let login_page: String = format!("http://{}/accounts/m_login/", login_data.return_ip());
     let logger_page: String = format!("http://{}/m_logger/1/", login_data.return_ip());
     const HOUSE_CONFIG: &str = "house_config.txt";
