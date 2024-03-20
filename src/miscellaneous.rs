@@ -38,6 +38,7 @@ pub fn read_last_log(
 }
 
 pub fn current_time() -> String {
+    /* Returns current local time */
     chrono::Local::now().format("%Y-%m-%dT%H:%M").to_string()
 }
 
@@ -47,7 +48,7 @@ pub fn save_to_file(
     file_path: &str,
     write_mode: WriteMode,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    /* Create/Append to data to */
+    /* Create/Append formated data to output file*/
     let mut file = std::fs::OpenOptions::new()
         .write(true)
         .append(write_mode.as_bool())
@@ -69,6 +70,7 @@ pub fn write_to_log(
     error_message: &str,
     file_path: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
+    /* Append errors with time stampt to log */
     const FILE_NAME: &str = "log.txt";
     let mut file = std::fs::OpenOptions::new()
         .write(true)

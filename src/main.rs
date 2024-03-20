@@ -16,13 +16,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let logger_page: String = format!("http://{}/m_logger/1/", login_data.return_ip());
     const HOUSE_CONFIG: &str = "house_config.txt";
 
-    let client: reqwest::Client = login::create_client(&login_data, &login_page)
-        .await
-        .expect("Failed to create client.");
+    let client: reqwest::Client = match login::create_client(&login_data, &login_page).await {
+        Ok(client) => client,
+        Err(e) => {
+            crate::miscellaneous::write_to_log(
+                format!("ERROR Failed to create client: {}", e).as_str(),
+                login_data.return_target_dict(),
+            )?;
+            std::process::exit(1);
+        }
+    };
 
-    let house: logging::House = logging::readout_logging_page(&client, &logger_page)
-        .await
-        .expect("Failed to get Sensors from logger page");
+    let house: logging::House = match logging::readout_logging_page(&client, &logger_page)
+        .await{
+            Ok(data) => data,
+            Err(e) => {
+                            crate::miscellaneous::write_to_log(
+                format!("ERROR Failed to readout logging page: {}", e).as_str(),
+                login_data.return_target_dict(),
+            )?;
+            std::process::exit(1);
+            },
+        };
+
+    crate::miscellaneous::write_to_log(
+        "INFO Script execution started.",
+        login_data.return_target_dict(),
+    )?;
 
     miscellaneous::save_to_file(
         &house.to_string(),

@@ -82,13 +82,20 @@ pub async fn create_client<'a>(
     let csrf_selector: scraper::Selector =
         scraper::Selector::parse("input[name=csrfmiddlewaretoken][type=hidden]")?;
 
-    let csrf_value = raw_html
+    let csrf_value: &str = match raw_html
         .select(&csrf_selector)
         .next()
         .and_then(|input| input.value().attr("value"))
-        .ok_or("CSRF token not found")?;
+    {
+        Some(thing) => thing,
+        None => {
+            return Err(Box::new(CustomError::from(
+                "Login failed, no csrf value found.",
+            )))
+        }
+    };
 
-    let login_response: &reqwest::Response = &client
+    let login_response: &Result<reqwest::Response, reqwest::Error> = &client
         .post(login_page)
         .form(&[
             ("mail", login_data.username.clone()),
@@ -96,11 +103,14 @@ pub async fn create_client<'a>(
             ("csrfmiddlewaretoken", csrf_value.to_owned()),
         ])
         .send()
-        .await?;
+        .await;
 
-    if !login_response.status().is_success() {
-        eprintln!("Login failed!");
-        return Err(Box::new(CustomError::from("Login failed")));
+    if login_response.as_ref().is_err()
+        || login_response.as_ref().unwrap().status().is_server_error()
+    {
+        return Err(Box::new(CustomError::from(
+            "Login failed, server error while logging in.",
+        )));
     }
 
     Ok(client)
